@@ -12,7 +12,8 @@ int main() {
     tree->add(-1, "dir", "bin/", "/usr/");
     tree->add(5, "file", "MyDocx.docx", "/usr/home/documents/");
     tree->add(7, "file", "settings.json", "/usr/bin/");
-    tree->add(8, "file", "settings.json", "/usr/bin/");
+    tree->add(7, "file", "settings.json", "/usr/bin/");
+    tree->add(7, "file", "settings.json", "/usr/bin/");
 
     tree->print();
     tree->searchNode("/usr/home/documents/MyDocx.docx");

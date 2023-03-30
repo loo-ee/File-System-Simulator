@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string>
+#include <cctype>
 
 using namespace std;
 
@@ -22,7 +24,7 @@ class FileSystem {
 
         if (parentNode->path == path) {
             if (locateNode(this->root, (path + child->nodeName))) {
-                cout << "[INFO] " << child->type << ": " << child->nodeName << " in path \"" << path << "\" already exists.\n";
+                cout << "\n[INFO] " << child->type << ": " << child->nodeName << " in path \"" << path << "\" already exists.\n";
                 return;
             }
 
@@ -61,15 +63,13 @@ class FileSystem {
     }
 
     TreeNode *locateNode(TreeNode *node, string path) {
-        static TreeNode *foundNode = nullptr;
-
         if (node->path == path)
-            foundNode = node;
+            return node;
 
         for (TreeNode *x: node->children)
-            locateNode(x, path);
+            return locateNode(x, path);
 
-        return foundNode;
+        return nullptr;
     }
 
 public:
