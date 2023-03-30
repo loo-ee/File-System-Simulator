@@ -6,23 +6,19 @@ using namespace std;
 
 template<typename T>
 class Tree {
-
     struct TreeNode {
         T data;
         string type;
         string nodeName;
+        string path;
         TreeNode *parentNode;
         vector<TreeNode *> children;
-    };
-
-    struct SearchNode {
-        string path;
-        TreeNode *node;
     };
 
     TreeNode *root = nullptr;
 
     void addChild(TreeNode *parentNode, TreeNode *child, string parentName) {
+        string path = parentNode->path;
 
         if (parentNode->nodeName == parentName) {
             if (parentNode->type == "file") {
@@ -31,6 +27,7 @@ class Tree {
             } 
 
             child->parentNode = parentNode;
+            child->path = path + child->nodeName;
             parentNode->children.push_back(child);
             cout << "Insertion of " << child->type << ": " << child->nodeName << " done.\n";
             return;
@@ -43,8 +40,8 @@ class Tree {
 
     void printTree(TreeNode *node) {
         cout << "\nName: " << node->nodeName << endl;
-
         cout << "Type: " << node->type << endl;
+        cout << "Path: " << node->path << endl;
         
         if (node->type == "file") {
             cout << "Value: " << node->data << endl;
@@ -58,30 +55,14 @@ class Tree {
         }
     }
 
-    SearchNode *locateNode(TreeNode *node, string nodeName) {
-        static SearchNode *foundNode = nullptr; 
-        // static TreeNode *foundNode = nullptr;
-        string path = "";
+    TreeNode *locateNode(TreeNode *node, string nodeName) {
+        static TreeNode *foundNode = nullptr;
 
-        if (node->nodeName == nodeName) {
-            foundNode = new SearchNode();
-
-            foundNode->node = node;
-        }
+        if (node->nodeName == nodeName)
+            foundNode = node;
 
         for (TreeNode *x: node->children)
             locateNode(x, nodeName);
-
-        if (foundNode) {
-            TreeNode *nodePtr = foundNode->node;
-
-            while (nodePtr) {
-                path = nodePtr->nodeName + path;
-                nodePtr = nodePtr->parentNode;
-            }
-
-            foundNode->path = path;
-        }
 
         return foundNode;
     }
@@ -92,6 +73,7 @@ public:
 
         this->root->type = "dir";
         this->root->nodeName = "/";
+        this->root->path = "/";
         this->root->parentNode= nullptr;
     };
 
@@ -110,7 +92,7 @@ public:
     }
 
     void searchNode(string nodeName) {
-        SearchNode *foundNode = locateNode(this->root, nodeName);
+        TreeNode *foundNode = locateNode(this->root, nodeName);
 
         if (!foundNode) {
             cout << "\nNOT FOUND\n";
@@ -118,11 +100,11 @@ public:
         }
 
         cout << "\nFOUND\n";
-        cout << "Name: " << foundNode->node->nodeName << endl;
+        cout << "Name: " << foundNode->nodeName << endl;
         cout << "Path: " << foundNode->path << endl;
-        cout << "Type: " << foundNode->node->type << endl;
+        cout << "Type: " << foundNode->type << endl;
 
-        if (foundNode->node->type == "file") 
-            cout << "Value: " << foundNode->node->data << endl;
+        if (foundNode->type == "file") 
+            cout << "Value: " << foundNode->data << endl;
     }
 };
