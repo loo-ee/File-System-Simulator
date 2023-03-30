@@ -17,10 +17,10 @@ class Tree {
 
     TreeNode *root = nullptr;
 
-    void addChild(TreeNode *parentNode, TreeNode *child, string parentName) {
-        string path = parentNode->path;
+    void addChild(TreeNode *parentNode, TreeNode *child, string path) {
+        string currentFilePath = parentNode->path;
 
-        if (parentNode->nodeName == parentName) {
+        if (parentNode->path == path) {
             if (parentNode->type == "file") {
                 cout << "Cannot append a file to another file!\n";
                 return;
@@ -34,7 +34,7 @@ class Tree {
         }
 
         for (TreeNode *x: parentNode->children) {
-            addChild(x, child, parentName);
+            addChild(x, child, path);
         }
     }
 
@@ -48,21 +48,21 @@ class Tree {
         }
         
         if (node->parentNode)
-            cout << "Parent: " << node->parentNode->nodeName << endl;
+            cout << "Parent: " << node->parentNode->path << endl;
 
         for (TreeNode* child : node->children) {
             printTree(child);
         }
     }
 
-    TreeNode *locateNode(TreeNode *node, string nodeName) {
+    TreeNode *locateNode(TreeNode *node, string path) {
         static TreeNode *foundNode = nullptr;
 
-        if (node->nodeName == nodeName)
+        if (node->path == path)
             foundNode = node;
 
         for (TreeNode *x: node->children)
-            locateNode(x, nodeName);
+            locateNode(x, path);
 
         return foundNode;
     }
@@ -91,8 +91,8 @@ public:
         printTree(this->root);
     }
 
-    void searchNode(string nodeName) {
-        TreeNode *foundNode = locateNode(this->root, nodeName);
+    void searchNode(string path) {
+        TreeNode *foundNode = locateNode(this->root, path);
 
         if (!foundNode) {
             cout << "\nNOT FOUND\n";
