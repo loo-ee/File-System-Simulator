@@ -5,7 +5,7 @@
 using namespace std;
 
 template<typename T>
-class Tree {
+class FileSystem {
     struct TreeNode {
         T data;
         string type;
@@ -21,6 +21,11 @@ class Tree {
         string currentFilePath = parentNode->path;
 
         if (parentNode->path == path) {
+            if (locateNode(this->root, (path + child->nodeName))) {
+                cout << "[INFO] " << child->type << ": " << child->nodeName << " in path \"" << path << "\" already exists.\n";
+                return;
+            }
+
             if (parentNode->type == "file") {
                 cout << "Cannot append a file to another file!\n";
                 return;
@@ -68,7 +73,7 @@ class Tree {
     }
 
 public:
-    Tree() {
+    FileSystem() {
         this->root = new TreeNode();
 
         this->root->type = "dir";
