@@ -112,4 +112,28 @@ public:
         if (foundNode->type == "file") 
             cout << "Value: " << foundNode->data << endl;
     }
+
+    void deleteFile(string path) {
+        TreeNode *nodeToDelete = locateNode(this->root, path);
+
+        if (!nodeToDelete) {
+            cout << "\n[INFO] File/Dir does not exist.\n";
+            return;
+        }
+
+        vector<TreeNode*> children = nodeToDelete->parentNode->children;
+        
+
+        for (int i = 0; i < children.size(); i++) {
+            if (children[i]->path == path) {
+                TreeNode *temp = children[i];
+                
+                children[i] = nullptr;
+                delete temp;
+
+                cout << "\n[INFO] File deleted\n";
+                break;
+            }
+        }
+    }
 };
