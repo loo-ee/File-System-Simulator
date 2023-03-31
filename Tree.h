@@ -72,6 +72,20 @@ class FileSystem {
         return nullptr;
     }
 
+    void editFileName(string path, string newName) {
+        TreeNode *foundNode = locateNode(this->root, path);
+
+        if (!foundNode) {
+            cout << "\n[INFO] File not found.\n";
+            return;
+        }
+
+        foundNode->nodeName = newName;
+        foundNode->path = foundNode->parentNode->path + newName;
+
+        cout << "\n[INFO] File renamed\n";
+    }
+
 public:
     FileSystem() {
         this->root = new TreeNode();
@@ -127,7 +141,7 @@ public:
         for (int i = 0; i < children.size(); i++) {
             if (children[i]->path == path) {
                 TreeNode *temp = children[i];
-                
+
                 children[i] = nullptr;
                 delete temp;
 
@@ -135,5 +149,9 @@ public:
                 break;
             }
         }
+    }
+
+    void renameFile(string path, string newName) {
+        editFileName(path, newName);
     }
 };
