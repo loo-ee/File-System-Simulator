@@ -46,7 +46,7 @@ class FileSystem {
     }
 
     void print_CMD_mode(TreeNode *node) {
-        cout << "Name: " << node->nodeName << endl;
+        cout << "\nName: " << node->nodeName << endl;
         cout << "Type: " << node->type << endl;
         cout << "Path: " << node->path << endl;
         
@@ -62,8 +62,7 @@ class FileSystem {
         }
     }
 
-    void printFileTree(TreeNode *node) {
-        static int tabCount = 0;
+    void printFileTree(TreeNode *node, int tabCount) {
         static TreeNode *previousNode = nullptr;
         static TreeNode *currentParent = nullptr;
         TreeNode *nodePtr = currentParent;
@@ -74,12 +73,9 @@ class FileSystem {
         } else {
             cout << "\r";
 
-            if (previousNode->parentNode == node->parentNode)
-                tabCount -= 1;
-
             while (nodePtr) {
                 if (nodePtr == node->parentNode) {
-                    tabCount -= counter + 1;
+                    tabCount--;
                     break;
                 } 
 
@@ -102,7 +98,7 @@ class FileSystem {
             currentParent = node->parentNode;
 
         for (TreeNode* child : node->children) {
-            printFileTree(child);
+            printFileTree(child, tabCount);
         }
     }
 
@@ -173,7 +169,7 @@ public:
 
             case 1:
                 cout << "\n[PRINTING TREE]\n\n";
-                printFileTree(this->root);
+                printFileTree(this->root, 0);
                 break;
         }
     }
@@ -221,5 +217,11 @@ public:
 
     void renameFile(string path, string newName) {
         editFileName(path, newName);
+    }
+
+    bool verifyPath(string path) {
+        TreeNode *foundNode = locateNode(this->root, path, true);
+
+        return foundNode != nullptr;
     }
 };
