@@ -66,6 +66,8 @@ class FileSystem {
         static int tabCount = 0;
         static TreeNode *previousNode = nullptr;
         static TreeNode *currentParent = nullptr;
+        TreeNode *nodePtr = currentParent;
+        int counter = 1;
 
         if (node == this->root) {
             cout << "\33[2C" << node->nodeName << " (root)\n";
@@ -75,8 +77,15 @@ class FileSystem {
             if (previousNode->parentNode == node->parentNode)
                 tabCount -= 1;
 
-            if (currentParent == node->parentNode)
-                tabCount -= 2;
+            while (nodePtr) {
+                if (nodePtr == node->parentNode) {
+                    tabCount -= counter + 1;
+                    break;
+                } 
+
+                nodePtr = nodePtr->parentNode; 
+                counter++;
+            }
 
             for (int i = 0; i < tabCount; i++) {
                 cout << "\33[8C";
