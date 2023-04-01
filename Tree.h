@@ -134,7 +134,7 @@ class FileSystem {
         searchFile = locateNode(this->root, fileToSearch, true);
 
         if (searchFile) {
-            cout << "\n[INFO] File with new name already exists in specified directory.\n";
+            cout << "\n[INFO] File with name:" << newName << " already exists in specified directory.\n";
             return;
         }
 
