@@ -13,8 +13,7 @@ int main() {
     tree->add(-1, "dir", "bin/", "/usr/");
     tree->add(7, "file", "settings.json", "/usr/bin/");
 
-    tree->searchNode("/usr/home/documents/MyDocx.docx");
-    tree->renameFile("/usr/home/documents/MyDocx.docx", "NewDocx.docx");
     tree->print();
+
     return 0;
 }

@@ -23,7 +23,7 @@ class FileSystem {
         string currentFilePath = parentNode->path;
 
         if (parentNode->path == path) {
-            if (locateNode(this->root, (path + child->nodeName))) {
+            if (locateNode(this->root, (path + child->nodeName), true)) {
                 cout << "\n[INFO] " << child->type << ": " << child->nodeName << " in path \"" << path << "\" already exists.\n";
                 return;
             }
@@ -62,21 +62,35 @@ class FileSystem {
         }
     }
 
-    TreeNode *locateNode(TreeNode *node, string path) {
+    TreeNode *locateNode(TreeNode *node, string path, bool firstRun) {
+        static TreeNode *foundNode = nullptr;
+
+        if (firstRun)
+            foundNode = nullptr;
+
         if (node->path == path)
-            return node;
+            foundNode = node;
 
         for (TreeNode *x: node->children)
-            return locateNode(x, path);
+            locateNode(x, path, false);
 
-        return nullptr;
+        return foundNode;
     }
 
     void editFileName(string path, string newName) {
-        TreeNode *foundNode = locateNode(this->root, path);
+        TreeNode *searchFile = nullptr;
+        TreeNode *foundNode = locateNode(this->root, path, true);
 
         if (!foundNode) {
             cout << "\n[INFO] File not found.\n";
+            return;
+        }
+
+        string fileToSearch = foundNode->parentNode->path + newName;
+        searchFile = locateNode(this->root, fileToSearch, true);
+
+        if (searchFile) {
+            cout << "\n[INFO] File with new name already exists in specified directory.\n";
             return;
         }
 
@@ -111,7 +125,7 @@ public:
     }
 
     void searchNode(string path) {
-        TreeNode *foundNode = locateNode(this->root, path);
+        TreeNode *foundNode = locateNode(this->root, path, true);
 
         if (!foundNode) {
             cout << "\nNOT FOUND\n";
@@ -128,7 +142,7 @@ public:
     }
 
     void deleteFile(string path) {
-        TreeNode *nodeToDelete = locateNode(this->root, path);
+        TreeNode *nodeToDelete = locateNode(this->root, path, true);
 
         if (!nodeToDelete) {
             cout << "\n[INFO] File/Dir does not exist.\n";
