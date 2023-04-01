@@ -45,8 +45,8 @@ class FileSystem {
         }
     }
 
-    void printTree(TreeNode *node) {
-        cout << "\nName: " << node->nodeName << endl;
+    void print_CMD_mode(TreeNode *node) {
+        cout << "Name: " << node->nodeName << endl;
         cout << "Type: " << node->type << endl;
         cout << "Path: " << node->path << endl;
         
@@ -58,7 +58,42 @@ class FileSystem {
             cout << "Parent: " << node->parentNode->path << endl;
 
         for (TreeNode* child : node->children) {
-            printTree(child);
+            print_CMD_mode(child);
+        }
+    }
+
+    void printFileTree(TreeNode *node) {
+        static int tabCount = 0;
+        static TreeNode *previousNode = nullptr;
+        static TreeNode *currentParent = nullptr;
+
+        if (node == this->root) {
+            cout << "\33[2C" << node->nodeName << " (root)\n";
+        } else {
+            cout << "\r";
+
+            if (previousNode->parentNode == node->parentNode)
+                tabCount -= 1;
+
+            if (currentParent == node->parentNode)
+                tabCount -= 2;
+
+            for (int i = 0; i < tabCount; i++) {
+                cout << "\33[8C";
+            }
+            
+            cout << "\33[1B|\33[1D\33[1B|";
+            cout << "--> " << node->nodeName << "\n";
+        }
+
+        tabCount++;
+        previousNode = node;
+
+        if (node->type == "dir")
+            currentParent = node->parentNode;
+
+        for (TreeNode* child : node->children) {
+            printFileTree(child);
         }
     }
 
@@ -120,8 +155,18 @@ public:
         addChild(this->root, newNode, parentName);   
     }
 
-    void print() {
-        printTree(this->root);
+    void print(int mode) {
+        switch (mode) {
+            case 0:
+                cout << "\n[PRINTING CMD MODE]\n\n";
+                print_CMD_mode(this->root);
+                break;
+
+            case 1:
+                cout << "\n[PRINTING TREE]\n\n";
+                printFileTree(this->root);
+                break;
+        }
     }
 
     void searchNode(string path) {
