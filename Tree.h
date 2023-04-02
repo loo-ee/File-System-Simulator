@@ -262,8 +262,12 @@ public:
             selectedPath = nodePtr->parentNode->path;
         else if (choice == 0 && !nodePtr->parentNode)
             return "";
-        else
-            selectedPath = nodePtr->children[choice -1]->path;
+        else {
+            if ((choice -1) >= nodePtr->children.size() || (choice -1) < 0)
+                selectedPath = nodePtr->path;
+            else
+                selectedPath = nodePtr->children[choice -1]->path;
+        }
 
         return selectedPath;
     }
