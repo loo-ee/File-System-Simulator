@@ -224,4 +224,47 @@ public:
 
         return foundNode != nullptr;
     }
+
+    string traverseFileSystem(string path) {
+        int choice = 0;
+        string selectedPath = "";
+
+        TreeNode *nodePtr = locateNode(this->root, path, true);
+
+        cout << "\n[Select Directory or File]\n";
+        cout << "[DIR] " << nodePtr->path << endl;
+        cout << "[0] ../ \n";
+
+        if (nodePtr->type == "dir") {
+            if (nodePtr->children.size() == 0) {
+                cout << "\n[INFO] No more sub directories\n";
+            }
+
+            for (int i = 1; i <= nodePtr->children.size(); i++) {
+                cout << "[" << i << "] " << nodePtr->children[i -1]->nodeName << endl;
+            }
+        }
+        else {
+            cout << "\nName: " << nodePtr->nodeName << endl;
+            cout << "Path: " << nodePtr->path << endl;
+            cout << "Value: " << nodePtr->data << endl;
+            
+            if (nodePtr->parentNode)
+                cout << "Parent: " << nodePtr->parentNode->path << endl;
+
+            cout << endl;
+        }
+
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        if (choice == 0 && nodePtr->parentNode) 
+            selectedPath = nodePtr->parentNode->path;
+        else if (choice == 0 && !nodePtr->parentNode)
+            return "";
+        else
+            selectedPath = nodePtr->children[choice -1]->path;
+
+        return selectedPath;
+    }
 };
