@@ -39,6 +39,10 @@ int main() {
             case '9':
                 running = false;
                 break;
+
+            default:
+                cout << "\n[INFO] Incorrect choice\n";
+                break;
         }
 
         cout << endl;
