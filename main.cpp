@@ -5,6 +5,8 @@ using namespace std;
 
 char getAction();
 void createFolder(FileSystem<string> *);
+void createFile(FileSystem<string> *);
+void search_File_OR_Folder(FileSystem<string> *);
 
 int main() {
     FileSystem<string> *systemDirectory = new FileSystem<string>();
@@ -29,6 +31,14 @@ int main() {
 
             case '3':
                 createFolder(systemDirectory);
+                break;
+
+            case '4':
+                createFile(systemDirectory);
+                break;
+
+            case '5':
+                search_File_OR_Folder(systemDirectory);
                 break;
 
             case '8':
@@ -69,8 +79,8 @@ char getAction() {
 
 void createFolder(FileSystem<string> *systemDirectory) {
     const string VALUE = "";
-    string folderName;
-    string path;
+    string folderName = "";
+    string path = "";
 
     cout << "\nEnter folder name: ";
     getline(cin >> ws, folderName); 
@@ -85,4 +95,36 @@ void createFolder(FileSystem<string> *systemDirectory) {
     }
 
     systemDirectory->add(VALUE, "dir", folderName, path);
+}
+
+void createFile(FileSystem<string> *systemDirectory) {
+    string value = "";
+    string fileName = "";
+    string path = "";
+
+    cout << "\nEnter file name: ";
+    getline(cin >> ws, fileName);
+    cout << "Enter value for file: ";
+    getline(cin >> ws, value);
+    cout << "Enter path to put file into: ";
+    getline(cin >> ws, path);
+
+    if (systemDirectory->verifyPath(path + fileName)) {
+        cout << "\n[INFO] File exists! Aborting...\n";
+        return;
+    }
+
+    systemDirectory->add(value, "file", fileName, path);
+}
+
+void search_File_OR_Folder(FileSystem<string> *systemDirectory) {
+    bool running = true;
+    string path = "/";
+
+    while (running) {
+        if (path == "") return;
+
+        system("cls");
+        path = systemDirectory->traverseFileSystem(path);
+    }
 }
