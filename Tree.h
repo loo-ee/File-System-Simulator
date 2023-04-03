@@ -80,7 +80,6 @@ class FileSystem {
                 } 
 
                 nodePtr = nodePtr->parentNode; 
-                counter++;
             }
 
             for (int i = 0; i < tabCount; i++) {
@@ -94,7 +93,10 @@ class FileSystem {
         tabCount++;
         previousNode = node;
 
-        if (node->type == "dir")
+        if (node->children.size() == 0) 
+            return; 
+
+        if (node->type == "file")
             currentParent = node->parentNode;
 
         for (TreeNode* child : node->children) {
