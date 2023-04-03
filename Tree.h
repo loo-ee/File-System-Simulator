@@ -201,14 +201,14 @@ public:
             return;
         }
 
-        vector<TreeNode*> children = nodeToDelete->parentNode->children;
+        vector<TreeNode*> *children = &nodeToDelete->parentNode->children;
         
 
-        for (int i = 0; i < children.size(); i++) {
-            if (children[i]->path == path) {
-                TreeNode *temp = children[i];
+        for (int i = 0; i < children->size(); i++) {
+            if (children->at(i)->path == path) {
+                TreeNode *temp = children->at(i);
 
-                children[i] = nullptr;
+                children->erase(children->begin() + i);
                 delete temp;
 
                 cout << "\n[INFO] File deleted\n";
@@ -227,11 +227,40 @@ public:
         return foundNode != nullptr;
     }
 
-    string traverseFileSystem(string path) {
+    string traverseFileSystem(string path, char mode, bool deleteStatus) {
         int choice = 0;
         string selectedPath = "";
 
         TreeNode *nodePtr = locateNode(this->root, path, true);
+
+        switch (mode) {
+            case 'd':
+                if (deleteStatus) {
+                    if (!verifyPath(path)) {
+                        cout << "\n[WARNING] Invalid choice\n";
+                        selectedPath = nodePtr->path;
+                    }
+                    else {
+                        nodePtr = nodePtr->parentNode;
+                        deleteFile(path);
+                        
+                    }
+
+                    deleteStatus = false;
+                }
+
+                break;
+
+            case 'e':
+                string parentPath = nodePtr->path;
+                string newName;
+
+                cout << "\nEnter new name for file/folder: ";
+                getline(cin >> ws, newName);
+
+                renameFile(parentPath, newName);
+                break;
+        } 
 
         cout << "\n[Select Directory or File]\n";
         cout << "[DIR] " << nodePtr->path << endl;
