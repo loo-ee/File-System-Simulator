@@ -8,6 +8,7 @@ void createFolder(FileSystem<string> *);
 void createFile(FileSystem<string> *);
 void search_File_OR_Folder(FileSystem<string> *);
 void delete_File_OR_Folder(FileSystem<string> *);
+void edit_File_OR_Folder(FileSystem<string> *);
 
 int main() {
     FileSystem<string> *systemDirectory = new FileSystem<string>();
@@ -44,6 +45,10 @@ int main() {
 
             case '6':
                 delete_File_OR_Folder(systemDirectory);
+                break;
+
+            case '7':
+                edit_File_OR_Folder(systemDirectory);
                 break;
 
             case '8':
@@ -130,13 +135,13 @@ void search_File_OR_Folder(FileSystem<string> *systemDirectory) {
         if (path == "") return;
 
         system("cls");
-        path = systemDirectory->traverseFileSystem(path, 's', false);
+        path = systemDirectory->traverseFileSystem(path, 's');
     }
 }
 
 void delete_File_OR_Folder(FileSystem<string> *systemDirectory) {
-    bool deleteStatus = false;
     char choice;
+    char mode = 's';
     string path = "/";
     bool running = true;
 
@@ -144,13 +149,40 @@ void delete_File_OR_Folder(FileSystem<string> *systemDirectory) {
         if (path == "") return;
 
         system("cls");
-        path = systemDirectory->traverseFileSystem(path, 'd', deleteStatus);
+        path = systemDirectory->traverseFileSystem(path, mode);
 
         cout << "\n[Select File/Folder to Delete]\n";
         cout << "Press [Y] to delete selected file/folder\n";
         cout << "Enter choice: ";
         cin >> choice;
 
-        deleteStatus = (choice == 'Y' || choice == 'y');
+        if (choice == 'Y' || choice == 'y')
+            mode = 'd';
+        else 
+            mode = 's';
+    }
+}
+
+void edit_File_OR_Folder(FileSystem<string> *systemDirectory) {
+    char choice;
+    char mode = 's';
+    string path = "/";
+    bool running = true;
+
+    while (running) {
+        if (path == "") return;
+
+        system("cls");
+        path = systemDirectory->traverseFileSystem(path, mode);
+
+        cout << "\n[Select File/Folder to Edit]\n";
+        cout << "Press [Y] to edit selected file/folder\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        if (choice == 'Y' || choice == 'y')
+            mode = 'e';
+        else 
+            mode = 's';
     }
 }

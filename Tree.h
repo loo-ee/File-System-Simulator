@@ -227,7 +227,7 @@ public:
         return foundNode != nullptr;
     }
 
-    string traverseFileSystem(string path, char mode, bool deleteStatus) {
+    string traverseFileSystem(string path, char mode) {
         int choice = 0;
         string selectedPath = "";
 
@@ -235,18 +235,13 @@ public:
 
         switch (mode) {
             case 'd':
-                if (deleteStatus) {
-                    if (!verifyPath(path)) {
-                        cout << "\n[WARNING] Invalid choice\n";
-                        selectedPath = nodePtr->path;
-                    }
-                    else {
-                        nodePtr = nodePtr->parentNode;
-                        deleteFile(path);
-                        
-                    }
-
-                    deleteStatus = false;
+                if (!verifyPath(path)) {
+                    cout << "\n[WARNING] Invalid choice\n";
+                    selectedPath = nodePtr->path;
+                }
+                else {
+                    nodePtr = nodePtr->parentNode;
+                    deleteFile(path);
                 }
 
                 break;
@@ -258,6 +253,7 @@ public:
                 cout << "\nEnter new name for file/folder: ";
                 getline(cin >> ws, newName);
 
+                nodePtr = nodePtr->parentNode;
                 renameFile(parentPath, newName);
                 break;
         } 
