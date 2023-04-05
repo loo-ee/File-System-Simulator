@@ -9,9 +9,11 @@ using namespace std;
 
 #define KEY_UP 72
 #define KEY_DOWN 80
-#define KEY_LEFT 75
-#define KEY_RIGHT 77
+// #define KEY_LEFT 75
+// #define KEY_RIGHT 77
 #define KEY_SELECT 115
+#define KEY_DELETE 100
+#define KEY_EDIT 101
 
 template<typename T>
 class FileSystem {
@@ -186,6 +188,35 @@ class FileSystem {
         cout << "\n[PRESS [S] to select]\n";
     }
 
+    string getPath(TreeNode *node, int selectedIndex) {
+        if (selectedIndex == 0 && node->parentNode) 
+            return node->parentNode->path;
+
+        else if (selectedIndex == 0 && !node->parentNode)
+            return "";
+
+        else 
+            return node->children[selectedIndex -1]->path;
+    }
+
+    bool isChoiceInvalid(int key) {
+        const int KEYS_COUNT = 5;
+        int keys[KEYS_COUNT] = {
+            KEY_UP,
+            KEY_DOWN,
+            KEY_SELECT,
+            KEY_DELETE,
+            KEY_EDIT
+        };
+
+        for (int i = 0; i < KEYS_COUNT; i++) {
+            if (keys[i] == key)
+                return false;
+        }
+
+        return true;
+    }
+
 public:
     FileSystem() {
         this->root = new TreeNode();
@@ -271,85 +302,90 @@ public:
         return foundNode != nullptr;
     }
 
-    string traverseFileSystem(string path, char mode) {
-        int choice = 0;
-        int selectedPathChoice = 0;
-        string selectedPath = "";
-        bool running = true;
+    void traverseFileSystem() {
+        bool isRunning = true;
+        bool is_SelectingPath = true;
+        string path = "/";
 
-        TreeNode *nodePtr = locateNode(this->root, path, true);
+        while (isRunning) {
+            int choice = 0;
+            int selectedPathChoice = 0;
+            TreeNode *nodePtr = locateNode(this->root, path, true);
 
-        switch (mode) {
-            case 'd':
-                if (!verifyPath(path)) {
-                    cout << "\n[WARNING] Invalid choice\n";
-                    selectedPath = nodePtr->path;
+            is_SelectingPath = true;
+
+            while (is_SelectingPath) {
+                system("cls");
+                printPathChoices(nodePtr, selectedPathChoice);
+
+                cout << "\33[?25l";
+                choice = 0;
+
+                while (isChoiceInvalid(choice)) {
+                    choice = _getch();
                 }
-                else {
-                    nodePtr = nodePtr->parentNode;
-                    deleteFile(path);
+
+                switch (choice) {
+                    case KEY_UP:
+                        selectedPathChoice--;
+
+                        if (selectedPathChoice < 0) 
+                            selectedPathChoice = 0;
+                        break;
+
+                    case KEY_DOWN:
+                        selectedPathChoice++;
+
+                        if (selectedPathChoice > nodePtr->children.size())
+                            selectedPathChoice = nodePtr->children.size();
+                        break;
+
+                    case KEY_SELECT:
+                        cout << "\33[?25h";
+                        is_SelectingPath = false;
+
+                        if (path == "/" && selectedPathChoice == 0)
+                            isRunning = false;
+
+                        path = getPath(nodePtr, selectedPathChoice);
+                        break;
+
+                    case KEY_DELETE:
+                        path = getPath(nodePtr, selectedPathChoice);                
+
+                        if (path != "") {
+                            if (!verifyPath(path)) {
+                                cout << "\n[WARNING] Invalid choice\n";
+                                path = nodePtr->path;
+                            }
+                            else {
+                                nodePtr = nodePtr->parentNode;
+                                deleteFile(path);
+                                path = nodePtr->path;
+                            }
+                        }
+                        break;
+
+                    case KEY_EDIT:
+                        path = getPath(nodePtr, selectedPathChoice);                
+                        nodePtr = locateNode(this->root, path, true);
+                        string parentPath = nodePtr->path;
+                        string newName;
+
+                        cout << "\33[?25l";
+                        cout << "\nEnter new name for file/folder: ";
+                        getline(cin >> ws, newName);
+                        cout << "\33[?25h";
+
+                        if (nodePtr->type == "dir")
+                            newName += "/";
+
+                        nodePtr = nodePtr->parentNode;
+                        renameFile(path, newName);
+                        path = nodePtr->path;
+                        break;
                 }
-
-                break;
-
-            case 'e':
-                string parentPath = nodePtr->path;
-                string newName;
-
-                cout << "\nEnter new name for file/folder: ";
-                getline(cin >> ws, newName);
-
-                nodePtr = nodePtr->parentNode;
-                renameFile(parentPath, newName);
-                break;
-        } 
-
-        printPathChoices(nodePtr, selectedPathChoice);
-
-        while (running) {
-            cout << "\33[?25l";
-            choice = 0;
-
-            while (choice != KEY_DOWN && choice != KEY_UP && choice != KEY_SELECT) {
-                choice = _getch();
             }
-
-            switch (choice) {
-                case KEY_UP:
-                    selectedPathChoice--;
-
-                    if (selectedPathChoice < 0) 
-                        selectedPathChoice = 0;
-                    break;
-                case KEY_DOWN:
-                    selectedPathChoice++;
-
-                    if (selectedPathChoice > nodePtr->children.size())
-                        selectedPathChoice = nodePtr->children.size();
-                    break;
-
-                case KEY_SELECT:
-                    cout << "\33[?25h";
-                    running = false;
-                    break;
-
-                default:
-                    break;
-            }
-
-            system("cls");
-            printPathChoices(nodePtr, selectedPathChoice);
         }
-
-        if (selectedPathChoice == 0 && nodePtr->parentNode) 
-            selectedPath = nodePtr->parentNode->path;
-
-        else if (selectedPathChoice == 0 && !nodePtr->parentNode)
-            return "";
-
-        else 
-            selectedPath = nodePtr->children[selectedPathChoice -1]->path;
-
-        return selectedPath;
     }
 };
