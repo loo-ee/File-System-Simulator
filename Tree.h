@@ -4,16 +4,35 @@
 #include <string>
 #include <cctype>
 #include <conio.h>
+#include <windows.h>
+#include <iomanip>
 
 using namespace std;
 
 #define KEY_UP 72
 #define KEY_DOWN 80
-// #define KEY_LEFT 75
-// #define KEY_RIGHT 77
 #define KEY_SELECT 115
 #define KEY_DELETE 100
 #define KEY_EDIT 101
+
+enum colour { DARKBLUE = 1, DARKGREEN, DARKTEAL, DARKRED, DARKPINK, DARKYELLOW, GRAY, DARKGRAY, BLUE, GREEN, TEAL, RED, PINK, YELLOW, WHITE };
+
+struct setcolour {
+   colour _c;
+   HANDLE _console_handle;
+
+
+       setcolour(colour c, HANDLE console_handle)
+           : _c(c), _console_handle(0)
+       { 
+           _console_handle = console_handle;
+       }
+};
+
+basic_ostream<char> &operator<<(basic_ostream<char> &s, const setcolour &ref) {
+    SetConsoleTextAttribute(ref._console_handle, ref._c);
+    return s;
+}
 
 template<typename T>
 class FileSystem {
@@ -71,11 +90,12 @@ class FileSystem {
         }
     }
 
-    void printFileTree(TreeNode *node, int tabCount) {
+    void printFileTree(TreeNode *node, int tabCount, string selectedPath) {
         static TreeNode *previousNode = nullptr;
         static TreeNode *currentParent = nullptr;
         TreeNode *nodePtr = currentParent;
         int counter = 1;
+        HANDLE chandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
         if (node == this->root) {
             cout << "\33[2C" << node->nodeName << " (root)\n";
@@ -96,7 +116,20 @@ class FileSystem {
             }
             
             cout << "\33[1B|\33[1D\33[1B|";
-            cout << "--> " << node->nodeName << "\n";
+            cout << "--> ";
+
+            if (node->path == selectedPath) {
+                cout << setcolour(GREEN, chandle);
+            }
+
+            cout << node->nodeName;
+
+            if (node->path == selectedPath) {
+                cout << setcolour(RED, chandle) << " * ";
+            }
+
+            cout << setcolour(WHITE, chandle);
+            cout << "\n"; 
         }
 
         tabCount++;
@@ -109,7 +142,7 @@ class FileSystem {
             currentParent = node->parentNode;
 
         for (TreeNode* child : node->children) {
-            printFileTree(child, tabCount);
+            printFileTree(child, tabCount, selectedPath);
         }
     }
 
@@ -152,11 +185,23 @@ class FileSystem {
     }
 
     void printPathChoices(TreeNode *nodePtr, int selectedPathChoice) {
-        cout << "Directory: " << nodePtr->path << endl;
-        cout << "\n[Select Directory or File]\n";
+        HANDLE chandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-        if (selectedPathChoice == 0)
-            cout << "--> [0] ../ \n";
+        cout << setcolour(YELLOW, chandle);
+        cout << "\nDirectory: ";
+        cout << setcolour(WHITE, chandle);
+        cout << nodePtr->path << endl;
+        cout << setcolour(RED, chandle);
+        cout << "\n[Select Directory or File]\n";
+        cout << setcolour(WHITE, chandle);
+
+        if (selectedPathChoice == 0) {
+            cout << setcolour(RED, chandle);
+            cout << "--> ";
+            cout << setcolour(GREEN, chandle);
+            cout << "[0] ../ \n";
+            cout << setcolour(WHITE, chandle);
+        }
         else 
             cout << "    [0] ../ \n";
 
@@ -166,12 +211,17 @@ class FileSystem {
             }
 
             for (int i = 1; i <= nodePtr->children.size(); i++) {
-                if (selectedPathChoice == i)
+                if (selectedPathChoice == i) {
+                    cout << setcolour(RED, chandle);
                     cout << "--> ";
-                else 
+                    cout << setcolour(GREEN, chandle);
+                    cout << "[" << i << "] " << nodePtr->children[i -1]->nodeName << endl;
+                    cout << setcolour(WHITE, chandle);
+                }
+                else {
                     cout << "    ";
-                    
-                cout << "[" << i << "] " << nodePtr->children[i -1]->nodeName << endl;
+                    cout << "[" << i << "] " << nodePtr->children[i -1]->nodeName << endl;
+                }
             }
         }
         else {
@@ -186,6 +236,8 @@ class FileSystem {
         }
 
         cout << "\n[PRESS [S] to select]\n";
+        cout << "[PRESS [D] to delete]\n";
+        cout << "[PRESS [E] to edit]\n";
     }
 
     string getPath(TreeNode *node, int selectedIndex) {
@@ -237,16 +289,21 @@ public:
         addChild(this->root, newNode, parentName);   
     }
 
-    void print(int mode) {
+    void print(int mode, string selectedPath) {
+        HANDLE chandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        cout << setcolour(RED, chandle);
+
         switch (mode) {
             case 0:
                 cout << "\n[PRINTING CMD MODE]\n\n";
+                cout << setcolour(WHITE, chandle);
                 print_CMD_mode(this->root);
                 break;
 
             case 1:
                 cout << "\n[PRINTING TREE]\n\n";
-                printFileTree(this->root, 0);
+                cout << setcolour(WHITE, chandle);
+                printFileTree(this->root, 0, selectedPath);
                 break;
         }
     }
@@ -316,6 +373,7 @@ public:
 
             while (is_SelectingPath) {
                 system("cls");
+                print(1, path);
                 printPathChoices(nodePtr, selectedPathChoice);
 
                 cout << "\33[?25l";

@@ -22,11 +22,11 @@ int main() {
 
         switch (action) {
             case '1':
-                systemDirectory->print(1);
+                systemDirectory->print(1, "");
                 break;
 
             case '2':
-                systemDirectory->print(0);
+                systemDirectory->print(0, "");
                 break;
 
             case '3':
@@ -41,12 +41,12 @@ int main() {
                 openFileExplorer(systemDirectory);
                 break;
 
-            case '8':
+            case '6':
                 delete[] systemDirectory;
                 systemDirectory = new FileSystem<string>();
                 break;
             
-            case '9':
+            case '7':
                 running = false;
                 break;
 
@@ -67,9 +67,9 @@ char getAction() {
     cout << "\n[ACTIONS]\n";
     cout << "[1] Show System Tree\n[2] Show System Tree-CMD mode\n"
         << "[3] Add Folder\n[4] Add File\n"
-        << "[5] Search File/Folder\n[6] Delete File/Folder\n"
-        << "[7] Edit File/Folder name\n[8] Delete all Files and Folders\n" 
-        << "[9] Exit\n"
+        << "[5] Open File Explorer\n"
+        << "[6] Delete all Files and Folders\n" 
+        << "[7] Exit\n"
         << "Choose action: ";
     cin >> choice;
 
