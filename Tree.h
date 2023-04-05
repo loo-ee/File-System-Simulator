@@ -3,8 +3,15 @@
 #include <vector>
 #include <string>
 #include <cctype>
+#include <conio.h>
 
 using namespace std;
+
+#define KEY_UP 72
+#define KEY_DOWN 80
+#define KEY_LEFT 75
+#define KEY_RIGHT 77
+#define KEY_SELECT 115
 
 template<typename T>
 class FileSystem {
@@ -142,6 +149,40 @@ class FileSystem {
         cout << "\n[INFO] File renamed\n";
     }
 
+    void printChoices(TreeNode *nodePtr, int selectedPathChoice) {
+        cout << "[DIR] " << nodePtr->path << endl;
+
+        if (selectedPathChoice == 0)
+            cout << "--> [0] ../ \n";
+        else 
+            cout << "    [0] ../ \n";
+
+        if (nodePtr->type == "dir") {
+            if (nodePtr->children.size() == 0) {
+                cout << "\n[INFO] No more sub directories\n";
+            }
+
+            for (int i = 1; i <= nodePtr->children.size(); i++) {
+                if (selectedPathChoice == i)
+                    cout << "--> ";
+                else 
+                    cout << "    ";
+                    
+                cout << "[" << i << "] " << nodePtr->children[i -1]->nodeName << endl;
+            }
+        }
+        else {
+            cout << "\nName: " << nodePtr->nodeName << endl;
+            cout << "Path: " << nodePtr->path << endl;
+            cout << "Value: " << nodePtr->data << endl;
+            
+            if (nodePtr->parentNode)
+                cout << "Parent: " << nodePtr->parentNode->path << endl;
+
+            cout << endl;
+        }
+    }
+
 public:
     FileSystem() {
         this->root = new TreeNode();
@@ -229,7 +270,9 @@ public:
 
     string traverseFileSystem(string path, char mode) {
         int choice = 0;
+        int selectedPathChoice = 0;
         string selectedPath = "";
+        bool running = true;
 
         TreeNode *nodePtr = locateNode(this->root, path, true);
 
@@ -259,41 +302,52 @@ public:
         } 
 
         cout << "\n[Select Directory or File]\n";
-        cout << "[DIR] " << nodePtr->path << endl;
-        cout << "[0] ../ \n";
+        printChoices(nodePtr, selectedPathChoice);
 
-        if (nodePtr->type == "dir") {
-            if (nodePtr->children.size() == 0) {
-                cout << "\n[INFO] No more sub directories\n";
+        while (running) {
+            cout << "\33[?25l";
+            choice = 0;
+
+            while (choice != KEY_DOWN && choice != KEY_UP && choice != KEY_SELECT) {
+                choice = _getch();
             }
 
-            for (int i = 1; i <= nodePtr->children.size(); i++) {
-                cout << "[" << i << "] " << nodePtr->children[i -1]->nodeName << endl;
+            switch (choice) {
+                case KEY_UP:
+                    selectedPathChoice--;
+
+                    if (selectedPathChoice < 0) 
+                        selectedPathChoice = 0;
+                    break;
+                case KEY_DOWN:
+                    selectedPathChoice++;
+
+                    if (selectedPathChoice > nodePtr->children.size())
+                        selectedPathChoice = nodePtr->children.size();
+                    break;
+
+                case KEY_SELECT:
+                    cout << "\33[?25h";
+                    running = false;
+                    break;
+
+                default:
+                    break;
             }
-        }
-        else {
-            cout << "\nName: " << nodePtr->nodeName << endl;
-            cout << "Path: " << nodePtr->path << endl;
-            cout << "Value: " << nodePtr->data << endl;
-            
-            if (nodePtr->parentNode)
-                cout << "Parent: " << nodePtr->parentNode->path << endl;
 
-            cout << endl;
+            system("cls");
+            printChoices(nodePtr, selectedPathChoice);
         }
 
-        cout << "Enter choice: ";
-        cin >> choice;
-
-        if (choice == 0 && nodePtr->parentNode) 
+        if (selectedPathChoice == 0 && nodePtr->parentNode) 
             selectedPath = nodePtr->parentNode->path;
-        else if (choice == 0 && !nodePtr->parentNode)
+        else if (selectedPathChoice == 0 && !nodePtr->parentNode)
             return "";
         else {
-            if ((choice -1) >= nodePtr->children.size() || (choice -1) < 0)
-                selectedPath = nodePtr->path;
-            else
-                selectedPath = nodePtr->children[choice -1]->path;
+            // if ((choice -1) >= nodePtr->children.size() || (choice -1) < 0)
+            //     selectedPath = nodePtr->path;
+            // else
+                selectedPath = nodePtr->children[selectedPathChoice -1]->path;
         }
 
         return selectedPath;
