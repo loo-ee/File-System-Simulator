@@ -149,8 +149,9 @@ class FileSystem {
         cout << "\n[INFO] File renamed\n";
     }
 
-    void printChoices(TreeNode *nodePtr, int selectedPathChoice) {
-        cout << "[DIR] " << nodePtr->path << endl;
+    void printPathChoices(TreeNode *nodePtr, int selectedPathChoice) {
+        cout << "Directory: " << nodePtr->path << endl;
+        cout << "\n[Select Directory or File]\n";
 
         if (selectedPathChoice == 0)
             cout << "--> [0] ../ \n";
@@ -181,6 +182,8 @@ class FileSystem {
 
             cout << endl;
         }
+
+        cout << "\n[PRESS [S] to select]\n";
     }
 
 public:
@@ -301,8 +304,7 @@ public:
                 break;
         } 
 
-        cout << "\n[Select Directory or File]\n";
-        printChoices(nodePtr, selectedPathChoice);
+        printPathChoices(nodePtr, selectedPathChoice);
 
         while (running) {
             cout << "\33[?25l";
@@ -336,19 +338,17 @@ public:
             }
 
             system("cls");
-            printChoices(nodePtr, selectedPathChoice);
+            printPathChoices(nodePtr, selectedPathChoice);
         }
 
         if (selectedPathChoice == 0 && nodePtr->parentNode) 
             selectedPath = nodePtr->parentNode->path;
+
         else if (selectedPathChoice == 0 && !nodePtr->parentNode)
             return "";
-        else {
-            // if ((choice -1) >= nodePtr->children.size() || (choice -1) < 0)
-            //     selectedPath = nodePtr->path;
-            // else
-                selectedPath = nodePtr->children[selectedPathChoice -1]->path;
-        }
+
+        else 
+            selectedPath = nodePtr->children[selectedPathChoice -1]->path;
 
         return selectedPath;
     }
