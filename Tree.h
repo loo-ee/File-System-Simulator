@@ -4,35 +4,10 @@
 #include <string>
 #include <cctype>
 #include <conio.h>
-#include <windows.h>
-#include <iomanip>
+
+#include "globals.h"
 
 using namespace std;
-
-#define KEY_UP 72
-#define KEY_DOWN 80
-#define KEY_SELECT 115
-#define KEY_DELETE 100
-#define KEY_EDIT 101
-
-enum colour { DARKBLUE = 1, DARKGREEN, DARKTEAL, DARKRED, DARKPINK, DARKYELLOW, GRAY, DARKGRAY, BLUE, GREEN, TEAL, RED, PINK, YELLOW, WHITE };
-
-struct setcolour {
-   colour _c;
-   HANDLE _console_handle;
-
-
-       setcolour(colour c, HANDLE console_handle)
-           : _c(c), _console_handle(0)
-       { 
-           _console_handle = console_handle;
-       }
-};
-
-basic_ostream<char> &operator<<(basic_ostream<char> &s, const setcolour &ref) {
-    SetConsoleTextAttribute(ref._console_handle, ref._c);
-    return s;
-}
 
 template<typename T>
 class FileSystem {
@@ -119,16 +94,16 @@ class FileSystem {
             cout << "--> ";
 
             if (node->path == selectedPath) {
-                cout << setcolour(GREEN, chandle);
+                cout << setColor(GREEN, chandle);
             }
 
             cout << node->nodeName;
 
             if (node->path == selectedPath) {
-                cout << setcolour(RED, chandle) << " * ";
+                cout << setColor(RED, chandle) << " * ";
             }
 
-            cout << setcolour(WHITE, chandle);
+            cout << setColor(WHITE, chandle);
             cout << "\n"; 
         }
 
@@ -187,20 +162,20 @@ class FileSystem {
     void printPathChoices(TreeNode *nodePtr, int selectedPathChoice) {
         HANDLE chandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-        cout << setcolour(YELLOW, chandle);
+        cout << setColor(YELLOW, chandle);
         cout << "\nDirectory: ";
-        cout << setcolour(WHITE, chandle);
+        cout << setColor(WHITE, chandle);
         cout << nodePtr->path << endl;
-        cout << setcolour(RED, chandle);
+        cout << setColor(RED, chandle);
         cout << "\n[Select Directory or File]\n";
-        cout << setcolour(WHITE, chandle);
+        cout << setColor(WHITE, chandle);
 
         if (selectedPathChoice == 0) {
-            cout << setcolour(RED, chandle);
+            cout << setColor(RED, chandle);
             cout << "--> ";
-            cout << setcolour(GREEN, chandle);
+            cout << setColor(GREEN, chandle);
             cout << "[0] ../ \n";
-            cout << setcolour(WHITE, chandle);
+            cout << setColor(WHITE, chandle);
         }
         else 
             cout << "    [0] ../ \n";
@@ -212,11 +187,11 @@ class FileSystem {
 
             for (int i = 1; i <= nodePtr->children.size(); i++) {
                 if (selectedPathChoice == i) {
-                    cout << setcolour(RED, chandle);
+                    cout << setColor(RED, chandle);
                     cout << "--> ";
-                    cout << setcolour(GREEN, chandle);
+                    cout << setColor(GREEN, chandle);
                     cout << "[" << i << "] " << nodePtr->children[i -1]->nodeName << endl;
-                    cout << setcolour(WHITE, chandle);
+                    cout << setColor(WHITE, chandle);
                 }
                 else {
                     cout << "    ";
@@ -291,18 +266,18 @@ public:
 
     void print(int mode, string selectedPath) {
         HANDLE chandle = GetStdHandle(STD_OUTPUT_HANDLE);
-        cout << setcolour(RED, chandle);
+        cout << setColor(RED, chandle);
 
         switch (mode) {
             case 0:
                 cout << "\n[PRINTING CMD MODE]\n\n";
-                cout << setcolour(WHITE, chandle);
+                cout << setColor(WHITE, chandle);
                 print_CMD_mode(this->root);
                 break;
 
             case 1:
                 cout << "\n[PRINTING TREE]\n\n";
-                cout << setcolour(WHITE, chandle);
+                cout << setColor(WHITE, chandle);
                 printFileTree(this->root, 0, selectedPath);
                 break;
         }
@@ -395,7 +370,7 @@ public:
                         selectedPathChoice++;
 
                         if (selectedPathChoice > nodePtr->children.size())
-                            selectedPathChoice = nodePtr->children.size();
+                            selectedPathChoice = static_cast<int>(nodePtr->children.size());
                         break;
 
                     case KEY_SELECT:
