@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TREE_GLOBALS_H
+#define TREE_GLOBALS_H
 
 #include <iostream>
 #include <windows.h>
@@ -9,6 +10,8 @@
 #define KEY_SELECT 115
 #define KEY_DELETE 100
 #define KEY_EDIT 101
+#define KEY_OVERRIDE 111
+#define KEY_EXIT 113
 
 using namespace std;
 
@@ -38,3 +41,5 @@ basic_ostream<char> &operator<<
     SetConsoleTextAttribute(ref._console_handle, ref._c);
     return s;
 }
+
+#endif

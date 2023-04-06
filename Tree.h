@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TREE_TREE_H
+#define TREE_TREE_H
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -182,7 +184,10 @@ class FileSystem {
 
         if (nodePtr->type == "dir") {
             if (nodePtr->children.size() == 0) {
-                cout << "\n[INFO] No more sub directories\n";
+                cout << setColor(RED, chandle);
+                cout << "\n[INFO]";
+                cout << setColor(WHITE, chandle);
+                cout << " No more sub directories\n";
             }
 
             for (int i = 1; i <= nodePtr->children.size(); i++) {
@@ -242,6 +247,43 @@ class FileSystem {
         }
 
         return true;
+    }
+
+    void verifyDeletion(vector<TreeNode *> *children, int index) {
+        bool running = true;
+        int choice = 0;
+
+        cout << "\n[INFO] Directory is not empty.\n";
+        cout << "Press [O] to override\n";
+        cout << "Press [Q] to exit\n";
+
+        while (running) {
+            choice = 0;
+
+            while (choice != KEY_OVERRIDE && choice != KEY_EXIT) {
+                choice = _getch();
+            }
+
+            switch (choice) {
+                case KEY_OVERRIDE:
+                    deleteNode(children, index);
+                    cout << "\n[INFO] Folder deleted.\n";
+                    running = false;
+                    break;
+
+                case KEY_EXIT:
+                    cout << "\n[INFO] Aborted.\n";
+                    running = false;
+                    break;
+            } 
+        }
+    }
+
+    void deleteNode(vector<TreeNode *> *children, int index) {
+        TreeNode *temp = children->at(index);
+
+        children->erase(children->begin() + index);
+        delete temp;
     }
 
 public:
@@ -313,13 +355,20 @@ public:
 
         for (int i = 0; i < children->size(); i++) {
             if (children->at(i)->path == path) {
-                TreeNode *temp = children->at(i);
-
-                children->erase(children->begin() + i);
-                delete temp;
-
-                cout << "\n[INFO] File deleted\n";
-                break;
+                if (children->at(i)->type == "dir") {
+                    if (children->at(i)->children.size() != 0) {
+                        verifyDeletion(children, i);
+                        break;
+                    }
+                    else {
+                        deleteNode(children, i);
+                        break;
+                    }
+                }
+                else {
+                    deleteNode(children, i);
+                    break;
+                }
             }
         }
     }
@@ -384,22 +433,22 @@ public:
                         break;
 
                     case KEY_DELETE:
-                        path = getPath(nodePtr, selectedPathChoice);                
+                        path = getPath(nodePtr, selectedPathChoice);        
 
-                        if (path != "") {
-                            if (!verifyPath(path)) {
+                        if (path != "" && selectedPathChoice != 0) {
+                            if (!verifyPath(path))
                                 cout << "\n[WARNING] Invalid choice\n";
-                                path = nodePtr->path;
-                            }
-                            else {
-                                nodePtr = nodePtr->parentNode;
+                            else 
                                 deleteFile(path);
-                                path = nodePtr->path;
-                            }
+
+                            path = nodePtr->path;
                         }
                         break;
 
                     case KEY_EDIT:
+                        if (selectedPathChoice == 0) 
+                            break;
+                            
                         path = getPath(nodePtr, selectedPathChoice);                
                         nodePtr = locateNode(this->root, path, true);
                         string parentPath = nodePtr->path;
@@ -422,3 +471,5 @@ public:
         }
     }
 };
+
+#endif
