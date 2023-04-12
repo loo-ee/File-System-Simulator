@@ -12,6 +12,8 @@
 #define KEY_EDIT 101
 #define KEY_OVERRIDE 111
 #define KEY_EXIT 113
+#define KEY_ADD_FOLDER 110
+#define KEY_ADD_FILE 102
 
 using namespace std;
 

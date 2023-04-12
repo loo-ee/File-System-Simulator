@@ -214,10 +214,16 @@ class FileSystem {
 
             cout << endl;
         }
-
+        
         cout << "\n[PRESS [S] to select]\n";
-        cout << "[PRESS [D] to delete]\n";
-        cout << "[PRESS [E] to edit]\n";
+
+        if (nodePtr->children.size() != 0) {
+            cout << "[PRESS [D] to delete]\n";
+            cout << "[PRESS [E] to edit]\n";
+        }
+
+        cout << "[PRESS [N] to create new folder]\n";
+        cout << "[PRESS [F] to create new file]\n";
     }
 
     string getPath(TreeNode *node, int selectedIndex) {
@@ -232,13 +238,15 @@ class FileSystem {
     }
 
     bool isChoiceInvalid(int key) {
-        const int KEYS_COUNT = 5;
+        const int KEYS_COUNT = 7;
         int keys[KEYS_COUNT] = {
             KEY_UP,
             KEY_DOWN,
             KEY_SELECT,
             KEY_DELETE,
-            KEY_EDIT
+            KEY_EDIT,
+            KEY_ADD_FOLDER,
+            KEY_ADD_FILE
         };
 
         for (int i = 0; i < KEYS_COUNT; i++) {
@@ -387,6 +395,9 @@ public:
         bool isRunning = true;
         bool is_SelectingPath = true;
         string path = "/";
+        string folderName = "";
+        string fileName = "";
+        string fileValue = "";
 
         while (isRunning) {
             int choice = 0;
@@ -433,6 +444,9 @@ public:
                         break;
 
                     case KEY_DELETE:
+                        if (selectedPathChoice == 0) 
+                            break;
+
                         path = getPath(nodePtr, selectedPathChoice);        
 
                         if (path != "" && selectedPathChoice != 0) {
@@ -443,6 +457,33 @@ public:
 
                             path = nodePtr->path;
                         }
+                        break;
+
+                    case KEY_ADD_FOLDER:
+                        cout << "\nEnter folder name: ";
+                        getline(cin >> ws, folderName);
+                        folderName += "/";
+
+                        if (verifyPath(path + folderName)) {   
+                            cout << "\n[INFO] Folder exists! Aborting...\n";
+                            return;
+                        }
+
+                        add("", "dir", folderName, path);
+                        break;
+
+                    case KEY_ADD_FILE:
+                        cout << "\nEnter file name: ";
+                        getline(cin >> ws, fileName);
+                        cout << "Enter value for file: ";
+                        getline(cin >> ws, fileValue);
+
+                        if (verifyPath(path + fileName)) {
+                            cout << "\n[INFO] File exists! Aborting...\n";
+                            return;
+                        }
+
+                        add(fileValue, "file", fileName, path);
                         break;
 
                     case KEY_EDIT:
